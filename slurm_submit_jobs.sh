@@ -1,5 +1,5 @@
 #!/bin/bash
-# usage: ./submit_jobs.sh <remote_user> <remote_host> <remote_dir>
+# usage: ./slurm_submit_jobs.sh <remote_user> <remote_host> <remote_dir>
 if [ "$#" -ne 3 ]; then
     echo "usage: $0 <remote_user> <remote_host> <remote_dir>"
     exit 1
@@ -10,14 +10,14 @@ REMOTE_HOST="$2"
 REMOTE_DIR="$3"
 
 # source configuration and grid helper
-source config.sh
-source grid_expand.sh
+source slurm_config.sh
+source slurm_grid_expand.sh
 
 # determine experiments: use explicit list if provided; otherwise, expand GRID_PARAMS
 if [ ${#EXPERIMENTS_LIST[@]} -ne 0 ]; then
     EXPERIMENTS=("${EXPERIMENTS_LIST[@]}")
 else
-    EXPERIMENTS=($(grid_expand "${GRID_PARAMS[@]}"))
+    EXPERIMENTS=($(slurm_grid_expand "${GRID_PARAMS[@]}"))
 fi
 
 # prompt for remote password (sshpass required)
@@ -33,7 +33,7 @@ for file in "${FILES_TO_PUSH[@]}"; do
 done
 
 echo "setting up remote environment..."
-sshpass -p "$REMOTE_PASS" ssh ${REMOTE_USER}@${REMOTE_HOST} "cd ${REMOTE_DIR} && chmod +x setup_env.sh && ./setup_env.sh"
+sshpass -p "$REMOTE_PASS" ssh ${REMOTE_USER}@${REMOTE_HOST} "cd ${REMOTE_DIR} && chmod +x slurm_setup_env.sh && ./slurm_setup_env.sh"
 
 # create a temporary directory locally for job scripts
 TEMP_DIR="temp_scripts"
@@ -83,4 +83,4 @@ EOF
 done
 
 echo "all jobs submitted. to monitor progress and retrieve outputs, run:"
-echo "  ./check_status.sh ${REMOTE_USER} ${REMOTE_HOST} ${REMOTE_DIR}"
+echo "  ./slurm_check_status.sh ${REMOTE_USER} ${REMOTE_HOST} ${REMOTE_DIR}"
