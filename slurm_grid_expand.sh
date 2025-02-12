@@ -1,7 +1,7 @@
 #!/bin/bash
-# grid_expand.sh: internal helper for expanding parameter grids.
-# usage: grid_expand "key1:val1,val2,..." "key2:val1,val2,..."
-grid_expand() {
+# slurm_grid_expand.sh: internal helper for expanding parameter grids.
+# usage: slurm_grid_expand "key1:val1,val2,..." "key2:val1,val2,..."
+slurm_grid_expand() {
     local arr=("$@")
     local result=("")
     for entry in "${arr[@]}"; do

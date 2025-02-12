@@ -1,5 +1,5 @@
 #!/bin/bash
-# usage: ./check_status.sh <remote_user> <remote_host> <remote_dir>
+# usage: ./slurm_check_status.sh <remote_user> <remote_host> <remote_dir>
 if [ "$#" -ne 3 ]; then
     echo "usage: $0 <remote_user> <remote_host> <remote_dir>"
     exit 1
@@ -10,7 +10,7 @@ REMOTE_HOST="$2"
 REMOTE_DIR="$3"
 
 # source config for FILES_TO_FETCH definitions
-source config.sh
+source slurm_config.sh
 
 read -sp "enter remote password for ${REMOTE_USER}@${REMOTE_HOST}: " REMOTE_PASS
 echo ""
