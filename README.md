@@ -1,81 +1,50 @@
-# slurm experiments with custom grid expansion
+# simple slurm experiment runner
 
-this repo provides a modular, no-fuss setup for running your pytorch experiments on a slurm cluster. it's built to let you easily run grid experiments (or any other parameter combinations) without drowning in boilerplate.
+this setup lets you run grid experiments on a slurm cluster with minimal hassle.
 
-## files
+## what to change
 
-- **train.py**  
-  your pytorch training script (set up for mnist by default). feel free to tweak it for your needs.
+- **config.sh**
+  - **GRID_PARAMS**: update these to define your experiment parameters. for example:
+    - `("lr:0.1,0.01,0.001" "epochs:1,2,5,10")`
+  - **SBATCH_DIRECTIVES**: customize your slurm header lines (e.g. time, mem, etc). you can use `{exp_name}` as a placeholder.
+  - **RUN_CMD**: change the command that runs your experiment. use placeholders like `{lr}`, `{epochs}`, and `{exp_name}`.
+  - **FILES_TO_PUSH/FILES_TO_FETCH**: adjust if you need to send or retrieve extra files.
 
-- **grid_expand.sh**  
-  an internal helper that expands parameter grids into experiment configurations. it's hidden—no need to mess with it.
+- **setup_env.sh**
+  - modify this file if you need to install extra dependencies on the remote machine. by default it installs torch and torchvision.
 
-- **config.sh**  
-  the declarative hub for your experiments. here you define:
-  - **GRID_PARAMS**: a dictionary-like array where each element is in the format `key:val1,val2,...`. for example, `"lr:0.1,0.01,0.001"` and `"epochs:1,2,5,10"`.
-  - **EXPERIMENTS_LIST**: (optional) an explicit list of experiments. if left empty, experiments are generated via grid expansion.
-  - **SBATCH_DIRECTIVES**: your custom sbatch header lines. you can use `{exp_name}` to automatically insert the experiment name.
-  - **RUN_CMD**: the command template for each job. use placeholders like `{lr}`, `{epochs}`, and `{exp_name}`.
-  - files to push and fetch.
+## what to run
 
-- **setup_env.sh**  
-  sets up a remote virtual environment and installs dependencies (torch, torchvision, etc.).
-
-- **submit_jobs.sh**  
-  pushes files to your remote machine, sets up the environment, generates job scripts (using grid expansion) in a local `temp_scripts` folder, and submits jobs to slurm.
-
-- **check_status.sh**  
-  polls remote job markers, downloads finished outputs into a local `temp_results` folder, and shows currently running experiments.
-
-## prerequisites
-
-- linux/mac (or wsl on windows) with bash
-- python3 (3.7+ recommended)
-- access to a slurm cluster (ssh)
-- [sshpass](https://linux.die.net/man/1/sshpass) installed locally (for non-interactive password passing)
-
-## usage
-
-1. **configure your experiments**  
-   edit `config.sh`:
-   - adjust **GRID_PARAMS** to define your experiment parameter grid.
-   - optionally set **EXPERIMENTS_LIST** if you prefer to list experiments explicitly.
-   - customize **SBATCH_DIRECTIVES** and **RUN_CMD** as needed.
-   - update file lists if necessary.
-
-2. **make scripts executable**
+1. **make scripts executable**  
    ```bash
    chmod +x *.sh
    ```
 
-3. **submit experiments**
+2. **submit your experiments**  
+   run:
    ```bash
    ./submit_jobs.sh <remote_user> <remote_host> <remote_dir>
    ```
-   for example:
+   _example_:  
    ```bash
    ./submit_jobs.sh my_user slurm.example.com ~/experiments
    ```
-   you'll be prompted for your remote password. this script pushes all necessary files, sets up the remote environment, generates job scripts (stored locally in `temp_scripts`), and submits your experiments.
+   you'll be prompted for your remote password.
 
-4. **monitor and retrieve outputs**
+3. **check status and retrieve outputs**  
+   run:
    ```bash
    ./check_status.sh <remote_user> <remote_host> <remote_dir>
    ```
-   finished experiment outputs will be downloaded into the local `temp_results` folder.
-
-## customization
-
-- **grid expansion**: adjust **GRID_PARAMS** in `config.sh` (each element should be in the format `key:val1,val2,...`). the helper in `grid_expand.sh` generates all parameter combinations.
-- **command template**: modify **RUN_CMD** in `config.sh` to change how each job is executed. use placeholders (e.g. `{lr}`, `{epochs}`, `{exp_name}`) that get replaced based on your experiment parameters.
-- **SBATCH directives**: customize **SBATCH_DIRECTIVES** in `config.sh` to define your slurm header lines explicitly. use `{exp_name}` to automatically insert the experiment name.
-- **file transfers**: update **FILES_TO_PUSH** and **FILES_TO_FETCH** in `config.sh` if you need to push or fetch additional files.
-
-## tl;dr
-
-1. edit `config.sh` to set your experiments  
-2. run:
+   _example_:  
    ```bash
-   ./submit_jobs.sh my_user slurm.example.com ~/experiments
    ./check_status.sh my_user slurm.example.com ~/experiments
    ```
+   finished outputs will download into a local `temp_results` folder.
+
+## prerequisites
+
+- bash (linux/mac or wsl)
+- sshpass (for password passing)
+- access to a slurm cluster via ssh
