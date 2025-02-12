@@ -19,7 +19,7 @@ RESULTS_DIR="temp_results"
 mkdir -p "$RESULTS_DIR"
 
 echo "fetching remote job markers..."
-status=$(sshpass -p "$REMOTE_PASS" ssh ${REMOTE_USER}@${REMOTE_HOST} "cd ${REMOTE_DIR} && ls -1 *.running *.finished 2>/dev/null")
+status=$(sshpass -p "$REMOTE_PASS" ssh ${REMOTE_USER}@${REMOTE_HOST} "cd ${REMOTE_DIR} && ls -1 *.running *.finished *.pending 2>/dev/null")
 if [ -z "$status" ]; then
     echo "no job markers found on remote."
 else
@@ -49,4 +49,12 @@ if [ -n "$running_jobs" ]; then
     echo "$running_jobs"
 else
     echo "no running experiments."
+fi
+
+pending_jobs=$(sshpass -p "$REMOTE_PASS" ssh ${REMOTE_USER}@${REMOTE_HOST} "cd ${REMOTE_DIR} && ls -1 *.pending 2>/dev/null")
+if [ -n "$pending_jobs" ]; then
+    echo "pending experiments:"
+    echo "$pending_jobs"
+else
+    echo "no pending experiments."
 fi

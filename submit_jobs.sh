@@ -66,12 +66,16 @@ for experiment in "${EXPERIMENTS[@]}"; do
 $job_sbatch
 
 cd ${REMOTE_DIR}
+rm ${exp_name}.pending
 touch ${exp_name}.running
 ${job_cmd}
 rm ${exp_name}.running
 touch ${exp_name}.finished
 EOF
 
+    # indicate job is submitted and pending at remote
+    sshpass -p "$REMOTE_PASS" ssh ${REMOTE_USER}@${REMOTE_HOST} "cd ${REMOTE_DIR} && touch ${exp_name}.pending"
+    
     # push the job script and submit it remotely
     sshpass -p "$REMOTE_PASS" scp "$job_script" ${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_DIR}/
     sshpass -p "$REMOTE_PASS" ssh ${REMOTE_USER}@${REMOTE_HOST} "cd ${REMOTE_DIR} && chmod +x ${exp_name}.sh && sbatch ${exp_name}.sh"
