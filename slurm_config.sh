@@ -6,6 +6,11 @@ declare -a GRID_PARAMS=("lr:0.1,0.01,0.001" "epochs:1,2,5,10")
 
 # if you prefer to list experiments explicitly, set EXPERIMENTS_LIST.
 # if left empty, experiments are generated via grid expansion.
+# e.g.:
+# EXPERIMENTS_LIST=(
+#   "lr=0.1,epochs=1"
+#   "lr=0.001,epochs=10"
+# )
 EXPERIMENTS_LIST=()
 
 # custom SBATCH directives: define your #SBATCH lines explicitly.
