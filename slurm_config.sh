@@ -18,17 +18,30 @@ EXPERIMENTS_LIST=()
 SBATCH_DIRECTIVES="
 #SBATCH --job-name={exp_name}
 #SBATCH --partition=gpu
-#SBATCH --time=02:00:00
+#SBATCH --time=00:10:00
 #SBATCH --cpus-per-gpu=40
 #SBATCH --nodes=1
 #SBATCH --gres=gpu:h100-47:1
 #SBATCH --mem=200G"
 
 # command template (use placeholders like {lr}, {epochs}, and {exp_name})
-RUN_CMD="source venv/bin/activate && python train.py --lr {lr} --epochs {epochs} --save_model {exp_name}_model.pth --log_file {exp_name}_log.txt"
+RUN_CMD="
+source venv/bin/activate
+python train.py --lr {lr} --epochs {epochs} --save_model {exp_name}_model.pth --log_file {exp_name}_log.txt"
 
 # files to push to remote
-FILES_TO_PUSH=("train.py" "slurm_setup_env.sh" "slurm_submit_jobs.sh" "slurm_check_status.sh" "slurm_config.sh" "slurm_grid_expand.sh" "requirements.txt")
+FILES_TO_PUSH=(
+    "train.py" 
+    "slurm_setup_env.sh" 
+    "slurm_submit_jobs.sh" 
+    "slurm_check_status.sh" 
+    "slurm_config.sh" 
+    "slurm_grid_expand.sh" 
+    "requirements.txt"
+)
 
 # files to fetch from remote (use {exp_name} as placeholder)
-FILES_TO_FETCH=("{exp_name}_model.pth" "{exp_name}_log.txt")
+FILES_TO_FETCH=(
+    "{exp_name}_model.pth" 
+    "{exp_name}_log.txt"
+)
